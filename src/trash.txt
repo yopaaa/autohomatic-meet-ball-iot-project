@@ -1,0 +1,37 @@
+class Buzzer
+{
+private:
+  int pin;
+
+public:
+  Buzzer(int pin)
+  {
+    this->pin = pin;
+    pinMode(pin, OUTPUT);
+  }
+
+  void on()
+  {
+    digitalWrite(pin, HIGH);
+  }
+
+  void off()
+  {
+    digitalWrite(pin, LOW);
+  }
+
+  void beep(int timeout)
+  {
+    digitalWrite(pin, HIGH);
+    delay(timeout);
+    digitalWrite(pin, LOW);
+  }
+};
+
+
+feb 24 5:01:35
+void TimerMode()
+{
+  Serial.println("timer mode");
+  delay(1000);
+}

@@ -2,6 +2,7 @@
 #define BUZZER_H
 
 #include <Arduino.h>
+#include "../Var.h"
 
 class Buzzer
 {
@@ -15,5 +16,6 @@ public:
     void off();
     void beep(int timeout);
 };
+extern Buzzer myBuzzer;
 
 #endif

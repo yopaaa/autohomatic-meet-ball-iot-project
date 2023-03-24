@@ -1,5 +1,7 @@
 #include "buzzer.h"
 
+Buzzer myBuzzer(buzzerPin);
+
 Buzzer::Buzzer(int pin)
 {
     this->pin = pin;

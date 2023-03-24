@@ -9,7 +9,7 @@
 #include "./func/Mode.h"
 #include "./Var.h"
 
-bool isStartCountingButton1 = false; // variable to track if we are currently counting or not
+bool isStartCountingButton1 = false;
 CRGB leds[NUM_LEDS];
 
 void initPins()

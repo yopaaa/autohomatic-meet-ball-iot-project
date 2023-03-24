@@ -14,14 +14,10 @@ AsyncWebServer server(3000);
 
 void handleRequest(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
 {
-    // Check if this is the first data packet
     if (index == 0)
     {
-        // Create a DynamicJsonDocument object with the same size as the incoming JSON data
         DynamicJsonDocument jsonDoc(len);
-        // Parse the incoming JSON data into the DynamicJsonDocument object
         DeserializationError error = deserializeJson(jsonDoc, data);
-        // Check if the JSON parsing was successful
         if (error)
         {
             request->send(400, "text/plain", "Bad Request");
@@ -29,24 +25,78 @@ void handleRequest(AsyncWebServerRequest *request, uint8_t *data, size_t len, si
         }
 
         DynamicJsonDocument json(1024);
-        // json["name"] = jsonDoc["name"].as<String>();
-        // json["age"] = jsonDoc["age"].as<int>();
         json["code"] = 200;
         json["message"] = "OK";
-        json["version"] = request->version();
         json["method"] = request->method();
         json["url"] = request->url();
-        json["host"] = request->host();
-        json["contentType"] = request->contentType();
-        json["contentLength"] = request->contentLength();
-        json["multipart"] = request->multipart();
 
         const String url = request->url();
-        if (url == "/led2")
+        if (url == "/wifi/set")
         {
-            json["pesan"] = jsonDoc["pesan"].as<String>();
-            // LED2_State = !LED2_State;
-            // digitalWrite(2, LED2_State);
+            if ((jsonDoc.containsKey("ssid")) && (jsonDoc.containsKey("password")))
+            {
+                String ssid = jsonDoc["ssid"].as<String>();
+                String password = jsonDoc["password"].as<String>();
+
+                saveWifiCredentials(ssid.c_str(), password.c_str());
+                json["ssis"] = ssid;
+            }
+            else
+            {
+                json["code"] = 400;
+                json["message"] = "Bad Request";
+            }
+        }
+        else if (url == "/count")
+        {
+            if ((jsonDoc.containsKey("target")))
+            {
+                SetMainFunc("count");
+                isPause = false;
+
+                blankLcdByRow(2);
+                digitalWrite(relay1, LOW); // set on relay
+
+                int target = jsonDoc["target"].as<int>();
+
+                countTarget = target;
+                json["target"] = target;
+            }
+            else
+            {
+                json["code"] = 400;
+                json["message"] = "Bad Request";
+            }
+        }
+        else if (url == "/timer")
+        {
+            if ((jsonDoc.containsKey("targetM")) && (jsonDoc.containsKey("targetS")))
+            {
+                SetMainFunc("timer");
+                startTime = millis();
+                isPause = false;
+
+                blankLcdByRow(2);
+                digitalWrite(relay1, LOW); // set on relay
+
+                int targetM = jsonDoc["targetM"].as<int>();
+                int targetS = jsonDoc["targetS"].as<int>();
+
+                timerTarget = (targetM * 60) + targetS;
+                json["target"] = timerTarget;
+            }
+            else
+            {
+                json["code"] = 400;
+                json["message"] = "Bad Request";
+            }
+        }
+        else if (url == "/stop")
+        {
+            startTime = millis();
+            isPause = true;
+            digitalWrite(relay1, HIGH); // set off relay
+            json["isPause"] = isPause;
         }
         else
         {
@@ -81,7 +131,7 @@ void handlePing(AsyncWebServerRequest *request)
 
     request->send(200, "application/json", jsonString);
 }
-// WEB SERVER FUNCTION
+
 void httpHandler()
 {
     DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
@@ -89,20 +139,6 @@ void httpHandler()
 
     server.onRequestBody(handleRequest);
     server.on("/ping", HTTP_GET, handlePing);
-
-    server.on("/wifi/set", HTTP_POST, [](AsyncWebServerRequest *request)
-              {
-    bool valuesExist = (request->hasArg("ssid")) && (request->hasArg("password"));
-
-    if (valuesExist){
-      String ssid = request->arg("ssid");
-      String password = request->arg("password");
-
-      saveWifiCredentials(ssid.c_str(), password.c_str());
-      request->send(200, "application/json", "{\"status\": \"OK\"}"); 
-    } else {
-      request->send(400, "application/json", "{\"status\": \"Bad request\"}");
-    } });
 
     server.on("/isPause", HTTP_POST, [](AsyncWebServerRequest *request)
               {
@@ -129,24 +165,6 @@ void httpHandler()
     } else {
       request->send(400, "application/json", "{\"status\": \"Bad request\"}");
     } });
-
-    server.on("/mode/timer", HTTP_POST, [](AsyncWebServerRequest *request)
-              {
-        ClearLcd();
-        SetMainFunc("timer");
-            // mainFunc = TimerMode;
-        isPause = true;
-        myBuzzer.beep(100);
-        request->send(200, "application/json", "{\"status\": \"OK\"}"); });
-
-    server.on("/mode/count", HTTP_POST, [](AsyncWebServerRequest *request)
-              {
-        ClearLcd();
-        SetMainFunc("count");
-        // mainFunc = CountMode;
-        isPause = true;
-        myBuzzer.beep(100);
-        request->send(200, "application/json", "{\"status\": \"OK\"}"); });
 
     server.on("/restart", HTTP_POST, [](AsyncWebServerRequest *request)
               {

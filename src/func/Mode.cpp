@@ -175,7 +175,7 @@ void CountMode()
                 return;
             }
         }
-        delay(20);
+        delay(objectCountDelay);
     }
 }
 

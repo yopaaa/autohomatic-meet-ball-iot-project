@@ -9,6 +9,7 @@
 #include "EEPROMFunc.h"
 #include "LCDFunc.h"
 #include "Mode.h"
+#include <EEPROM.h>
 
 AsyncWebServer server(3000);
 
@@ -25,9 +26,10 @@ void handleRequest(AsyncWebServerRequest *request, uint8_t *data, size_t len, si
         }
 
         DynamicJsonDocument json(1024);
+        JsonObject payload = json.createNestedObject("payload");
         json["code"] = 200;
         json["message"] = "OK";
-        json["method"] = request->method();
+        // json["method"] = request->method();
         json["url"] = request->url();
 
         const String url = request->url();
@@ -39,7 +41,7 @@ void handleRequest(AsyncWebServerRequest *request, uint8_t *data, size_t len, si
                 String password = jsonDoc["password"].as<String>();
 
                 saveWifiCredentials(ssid.c_str(), password.c_str());
-                json["ssis"] = ssid;
+                payload["ssid"] = ssid;
             }
             else
             {
@@ -60,7 +62,7 @@ void handleRequest(AsyncWebServerRequest *request, uint8_t *data, size_t len, si
                 int target = jsonDoc["target"].as<int>();
 
                 countTarget = target;
-                json["target"] = target;
+                payload["target"] = target;
             }
             else
             {
@@ -83,7 +85,7 @@ void handleRequest(AsyncWebServerRequest *request, uint8_t *data, size_t len, si
                 int targetS = jsonDoc["targetS"].as<int>();
 
                 timerTarget = (targetM * 60) + targetS;
-                json["target"] = timerTarget;
+                payload["target"] = timerTarget;
             }
             else
             {
@@ -93,10 +95,26 @@ void handleRequest(AsyncWebServerRequest *request, uint8_t *data, size_t len, si
         }
         else if (url == "/stop")
         {
-            startTime = millis();
+            // startTime = millis();
             isPause = true;
             digitalWrite(relay1, HIGH); // set off relay
-            json["isPause"] = isPause;
+            payload["isPause"] = isPause;
+        }
+        else if (url == "/objectCountDelay")
+        {
+            if ((jsonDoc.containsKey("delay")))
+            {
+                int delay = jsonDoc["delay"].as<int>();
+                objectCountDelay = delay * 100;
+                EEPROM.write(OBJECT_COUNT_DELAY_ADDRESS, delay);
+                EEPROM.commit();
+                payload["delay"] = delay * 100;
+            }
+            else
+            {
+                json["code"] = 400;
+                json["message"] = "Bad Request";
+            }
         }
         else
         {
@@ -113,22 +131,15 @@ void handleRequest(AsyncWebServerRequest *request, uint8_t *data, size_t len, si
 void handlePing(AsyncWebServerRequest *request)
 {
     DynamicJsonDocument json(1024);
+    JsonObject payload = json.createNestedObject("payload");
+    json["code"] = 200;
     json["message"] = "OK";
-    // json["CodeVersion"] = CodeVersion;
-    json["CycleCount"] = ESP.getCycleCount();
-    json["ChipModel"] = ESP.getChipModel();
-    json["SketchSize"] = ESP.getSketchSize();
-    json["version"] = request->version();
-    json["method"] = request->method();
+    // json["method"] = request->method();
     json["url"] = request->url();
-    json["host"] = request->host();
-    json["contentType"] = request->contentType();
-    json["contentLength"] = request->contentLength();
-    json["multipart"] = request->multipart();
+
 
     String jsonString;
     serializeJson(json, jsonString);
-
     request->send(200, "application/json", jsonString);
 }
 
@@ -139,32 +150,6 @@ void httpHandler()
 
     server.onRequestBody(handleRequest);
     server.on("/ping", HTTP_GET, handlePing);
-
-    server.on("/isPause", HTTP_POST, [](AsyncWebServerRequest *request)
-              {
-    bool valuesExist = (request->hasArg("val"));
-
-    if (valuesExist){
-      String val = request->arg("val");
-      val.toLowerCase();
-      if (val == "true")
-      {
-        isPause = false;
-        myBuzzer.beep(100);
-        startTime = millis();
-        blankLcdByRow(2);
-        digitalWrite(relay1, LOW); // set on relay
-        delay(100);
-      }
-      else
-      {
-        isPause = true;
-      }
-
-      request->send(200, "application/json", "{\"status\": \"OK\"}"); 
-    } else {
-      request->send(400, "application/json", "{\"status\": \"Bad request\"}");
-    } });
 
     server.on("/restart", HTTP_POST, [](AsyncWebServerRequest *request)
               {

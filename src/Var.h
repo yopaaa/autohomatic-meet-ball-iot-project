@@ -4,6 +4,7 @@
 
 // extern void (*mainFunc)();
 // void SetMainFunc(void (*x)());
+#define OBJECT_COUNT_DELAY_ADDRESS 100
 
 #define NUM_LEDS 2
 #define LEDS_PIN 12
@@ -29,6 +30,7 @@ extern unsigned long startTime;
 extern unsigned long timerTarget;
 extern int countTarget;
 extern int objectCount;
+extern int objectCountDelay;
 extern String countMode;
 
 #endif

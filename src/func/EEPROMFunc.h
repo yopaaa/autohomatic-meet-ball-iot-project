@@ -6,5 +6,6 @@
 void saveWifiCredentials(const char *ssid, const char *password);
 void readWifiCredentials();
 void eepromInit();
+void loadVariableFromEeprom();
 
 #endif

@@ -23,7 +23,8 @@ bool isPause = true;
 bool isApWifiMode = false;
 
 int objectCount = 0;
-unsigned long startTime = 0;         // variable to store the start time
-unsigned long timerTarget = 1200;    // variable to store the start time
-int countTarget = 100;               // variable to store the start time
+unsigned long startTime = 0;      // variable to store the start time
+unsigned long timerTarget = 1200; // variable to store the start time
+int countTarget = 100;            // variable to store the start time
+int objectCountDelay = 500;
 String countMode = "limit";

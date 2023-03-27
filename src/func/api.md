@@ -5,88 +5,187 @@ This API provides endpoints for controlling a device.
 
 ### Endpoints
 
-#### `/wifi/set`
-##### Method: POST
+
+## POST /wifi/set
 Sets the WiFi credentials for the device.
-##### Request Parameters:
-* `ssid` (required): The name of the WiFi network.
-* `password` (required): The password for the WiFi network.
+#### Example Request:
+```bash
+POST /wifi/set HTTP/1.1
+Host: <target ip>:3000
+Content-Type: application/json
 
-##### Response:
-Returns a JSON object with the following fields:
-* `code`: The HTTP status code (200 for success, 400 for bad request).
-* `message`: A description of the result.
-* `ssis`: The name of the WiFi network that was set.
+{
+    "ssid": "your_ssid" ,
+    "password": "your_password"
+}
+```
+#### Example Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
 
-#### `/count`
-##### Method: POST
-Sets the device to count mode.
-##### Request Parameters:
-* `target` (required): The target count.
+{
+    "code": 200 ,
+    "message": "OK" ,
+    "url": "/wifi/set" ,
+    "payload": {
+        "ssid": "your_ssid"
+    }
+}
+```
+---
 
-##### Response:
-Returns a JSON object with the following fields:
-* `code`: The HTTP status code (200 for success, 400 for bad request).
-* `message`: A description of the result.
-* `target`: The target count that was set.
+## POST /count
+to start count mode
+#### Example Request:
+```bash
+POST /count HTTP/1.1
+Host: <target ip>:3000
+Content-Type: application/json
 
-#### `/timer`
-##### Method: POST
-Sets the device to timer mode.
-##### Request Parameters:
-* `targetM` (required): The target minutes.
-* `targetS` (required): The target seconds.
+{
+    "target": 10
+}
+```
+#### Example Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
 
-##### Response:
-Returns a JSON object with the following fields:
-* `code`: The HTTP status code (200 for success, 400 for bad request).
-* `message`: A description of the result.
-* `target`: The target time that was set.
+{
+    "code": 200 ,
+    "message": "OK" ,
+    "url": "/count" ,
+    "payload": {
+        "target": 10
+    }
+}
+```
+---
 
-#### `/stop`
-##### Method: POST
-Stops the device.
-##### Request Parameters:
-None.
 
-##### Response:
-Returns a JSON object with the following fields:
-* `code`: The HTTP status code (200 for success, 400 for bad request).
-* `message`: A description of the result.
-* `isPause`: A boolean indicating whether the device is paused.
+## POST /timer
+to start timer mode
+#### Example Request:
+```bash
+POST /timer HTTP/1.1
+Host: <target ip>:3000
+Content-Type: application/json
 
-#### `/ping`
-##### Method: GET
+{
+    "targetM": 5 ,
+    "targetS": 30
+}
+```
+#### Example Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "code": 200 ,
+    "message": "OK" ,
+    "url": "/timer" ,
+    "payload": {
+        "target": 330
+    }
+}
+```
+---
+
+
+## POST /stop
+Stops the start mode.
+#### Example Request:
+```bash
+POST /stop HTTP/1.1
+Host: <target ip>:3000
+Content-Type: application/json
+
+{
+}
+```
+#### Example Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "code": 200 ,
+    "message": "OK" ,
+    "url": "/stop" ,
+    "payload": {
+        "isPause": true
+    }
+}
+```
+---
+
+## POST /objectCountDelay
+Sets the infrared scan delay 
+#### Example Request:
+```bash
+POST /objectCountDelay HTTP/1.1
+Host: <target ip>:3000
+Content-Type: application/json
+
+{
+    "delay": 10
+}
+```
+#### Example Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "code": 200 ,
+    "message": "OK" ,
+    "url": "/objectCountDelay",
+    "payload": {
+        "delay": 1000 ,
+    }
+}
+```
+---
+
+## GET /ping
 Pings the device to check if it is online.
+#### Example Request:
+```bash
+GET /ping HTTP/1.1
+Host: <target ip>:3000
+```
+#### Example Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
 
-##### Response:
-Returns a JSON object with the following fields:
-* `message`: A description of the result.
-* `CycleCount`: The number of cycles since the device was last restarted.
-* `ChipModel`: The model of the ESP chip.
-* `SketchSize`: The size of the sketch.
-* `version`: The version of the HTTP protocol.
-* `method`: The HTTP method used.
-* `url`: The URL that was requested.
-* `host`: The host of the device.
-* `contentType`: The content type of the request.
-* `contentLength`: The length of the request content.
-* `multipart`: A boolean indicating whether the request was multipart.
+{
+    "code": 200
+    "message": "OK"
+    "url": "/ping"
+    "payload": {}
+}
+```
+---
 
-#### `/isPause`
-##### Method: POST
-Pauses or resumes the device.
-##### Request Parameters:
-* `val` (required): A boolean indicating whether to pause or resume the device.
 
-##### Response:
-Returns a JSON object with the following fields:
-* `status`: A description of the result.
+## POST /restart
+to restarts the device
+#### Example Request:
+```bash
+POST /restart HTTP/1.1
+Host: <target ip>:3000
+```
+#### Example Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
 
-#### `/restart`
-##### Method: POST
-Restarts the device.
+{
+    "status": "OK"
+}
+```
+---
 
-##### Response:
-Returns a JSON object with the following fields:
-* `status`: A description of the result.

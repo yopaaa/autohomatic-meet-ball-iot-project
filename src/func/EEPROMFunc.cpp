@@ -11,6 +11,12 @@ void eepromInit()
 {
     EEPROM.begin(EEPROM_SIZE);
 }
+
+void loadVariableFromEeprom()
+{
+    objectCountDelay = EEPROM.read(OBJECT_COUNT_DELAY_ADDRESS) * 100;
+}
+
 void saveWifiCredentials(const char *ssid, const char *password)
 {
     // Save the SSID to EEPROM

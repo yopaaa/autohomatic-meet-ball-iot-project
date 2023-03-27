@@ -189,3 +189,20 @@ Content-Type: application/json
 ```
 ---
 
+## POST /AsyncElegantOTA
+to start AsyncElegantOTAs the device
+#### Example Request:
+```bash
+POST /AsyncElegantOTA HTTP/1.1
+Host: <target ip>:3000
+```
+#### Example Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "status": "OK"
+}
+```
+---

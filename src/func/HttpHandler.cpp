@@ -137,7 +137,6 @@ void handlePing(AsyncWebServerRequest *request)
     // json["method"] = request->method();
     json["url"] = request->url();
 
-
     String jsonString;
     serializeJson(json, jsonString);
     request->send(200, "application/json", jsonString);
@@ -157,10 +156,14 @@ void httpHandler()
           delay(500);
           ESP.restart(); });
 
+    server.on("/AsyncElegantOTA", HTTP_POST, [](AsyncWebServerRequest *request)
+              {
+          AsyncElegantOTA.begin(&server, APssid, APpassword);
+          request->send(200, "application/json", "{\"status\": \"OK\"}"); });
+
     server.onNotFound([](AsyncWebServerRequest *request)
                       { request->send(404, "application/json", "{\"status\": \"Not found\"}"); });
 
-    AsyncElegantOTA.begin(&server, APssid, APpassword);
     server.begin();
     Serial.println("Server started");
 }

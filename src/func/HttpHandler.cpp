@@ -56,7 +56,7 @@ void handleRequest(AsyncWebServerRequest *request, uint8_t *data, size_t len, si
                 SetMainFunc("count");
                 isPause = false;
 
-                blankLcdByRow(2);
+                ClearLcd();
                 digitalWrite(relay1, LOW); // set on relay
 
                 int target = jsonDoc["target"].as<int>();
@@ -78,7 +78,7 @@ void handleRequest(AsyncWebServerRequest *request, uint8_t *data, size_t len, si
                 startTime = millis();
                 isPause = false;
 
-                blankLcdByRow(2);
+                ClearLcd();
                 digitalWrite(relay1, LOW); // set on relay
 
                 int targetM = jsonDoc["targetM"].as<int>();
@@ -142,6 +142,30 @@ void handlePing(AsyncWebServerRequest *request)
     request->send(200, "application/json", jsonString);
 }
 
+void handlerVariable(AsyncWebServerRequest *request)
+{
+    DynamicJsonDocument json(1024);
+    JsonObject payload = json.createNestedObject("payload");
+    json["code"] = 200;
+    json["message"] = "OK";
+    json["url"] = request->url();
+
+    payload["isPause"] = isPause;
+    payload["isApWifiMode"] = isApWifiMode;
+    payload["objectCount"] = objectCount;
+    payload["startTime"] = startTime;
+    payload["timerTarget"] = timerTarget;
+    payload["countTarget"] = countTarget;
+    payload["objectCountDelay"] = objectCountDelay;
+    payload["countMode"] = countMode;
+    payload["mode"] = mode;
+
+    String jsonString;
+    serializeJson(json, jsonString);
+
+    request->send(200, "application/json", jsonString);
+}
+
 void httpHandler()
 {
     DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
@@ -149,6 +173,8 @@ void httpHandler()
 
     server.onRequestBody(handleRequest);
     server.on("/ping", HTTP_GET, handlePing);
+
+    server.on("/variable", HTTP_GET, handlerVariable);
 
     server.on("/restart", HTTP_POST, [](AsyncWebServerRequest *request)
               {

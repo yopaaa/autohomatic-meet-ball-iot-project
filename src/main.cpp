@@ -51,7 +51,7 @@ void setup()
   myBuzzer.off();
 
   ClearLcd();
-  SetMainFunc("timer");
+  // SetMainFunc("timer");
 }
 
 void loop()
@@ -68,58 +68,35 @@ void loop()
     Serial.print("button 1 pressed in: ");
     Serial.println(elapsedTime);
 
-    // if button 1 push more than 3000 ms
     if ((digitalRead(button1) == HIGH) && (elapsedTime >= 3000))
     {
-      // if button 1 push more than 5000 ms
-      if ((digitalRead(button1) == HIGH) && (elapsedTime >= 5000))
+      Serial.println("button1 presses on 3 second");
+      // timer > count > wifi
+      if (mode == "timer")
+      {
+        leds[0] = CRGB(255, 0, 0);
+        SetMainFunc("count");
+        Serial.println("mainFunc = CountMode");
+      }
+      else if (mode == "count")
       {
         leds[0] = CRGB(0, 255, 0);
-        FastLED.show();
         SetMainFunc("wifi");
         Serial.println("wifi mode");
-        myBuzzer.beep(300);
-        ClearLcd();
-        isStartCountingButton1 = false;
-        isPause = true;
-        WiFiApStart();
-        return;
       }
-
-      // if button 1 dont push again
-      if (digitalRead(button1) == LOW)
+      else if (mode == "wifi")
       {
-        Serial.println("button1 presses on 3 second");
-
-        if (mode == "timer")
-        {
-          leds[0] = CRGB(255, 0, 0);
-          SetMainFunc("count");
-          Serial.println("mainFunc = CountMode");
-        }
-        else if (mode == "count")
-        {
-          leds[0] = CRGB(0, 0, 255);
-          SetMainFunc("timer");
-          Serial.println("mainFunc = TimerMode;");
-        }
-
-        WifiStop();
-        ClearLcd();
-        FastLED.show();
-        isStartCountingButton1 = false;
-        isPause = true;
-        myBuzzer.beep(300);
-        return;
+        leds[0] = CRGB(0, 0, 255);
+        SetMainFunc("timer");
+        Serial.println("mainFunc = TimerMode;");
       }
-    }
 
-    // if button 1 dont push again
-    if (digitalRead(button1) == LOW)
-    {
-      // isPause = !isPause;
+      mode == "wifi" ? WiFiApStart() : WifiStop();
+      ClearLcd();
+      FastLED.show();
       isStartCountingButton1 = false;
-      // myBuzzer.beep(500);
+      isPause = true;
+      myBuzzer.beep(300);
       return;
     }
   }

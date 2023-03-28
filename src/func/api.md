@@ -206,3 +206,34 @@ Content-Type: application/json
 }
 ```
 ---
+
+## GET /variable
+To get exist variable value
+#### Example Request:
+```bash
+GET /variable HTTP/1.1
+Host: <target ip>:3000
+```
+#### Example Response:
+```bash
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "code": 200 ,
+    "message": "OK",
+    "url": "/variable",
+    "payload": {
+        "isPause": true,
+        "isApWifiMode": true,
+        "objectCount": 10,
+        "startTime": 1616935895,
+        "timerTarget": 120,
+        "countTarget": 50,
+        "objectCountDelay": 500,
+        "countMode": 2,
+        "mode": "wifi"
+  }
+}
+```
+---

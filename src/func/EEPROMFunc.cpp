@@ -14,7 +14,10 @@ void eepromInit()
 
 void loadVariableFromEeprom()
 {
-    objectCountDelay = EEPROM.read(OBJECT_COUNT_DELAY_ADDRESS) * 100;
+    if (EEPROM.read(OBJECT_COUNT_DELAY_ADDRESS) > 0)
+    {
+        objectCountDelay = EEPROM.read(OBJECT_COUNT_DELAY_ADDRESS) * 100;
+    }
 }
 
 void saveWifiCredentials(const char *ssid, const char *password)
